@@ -285,9 +285,9 @@ def analysePcap(graph, fileName):
 def GetArg():
     parser = argparse.ArgumentParser(description='Create graph with neo4j from pcap', usage='%(prog)s [options]')
     parser.add_argument('-u',   help='Username of neo4j database',  type=str,   default="neo4j",dest="user")
-    parser.add_argument('-p',   help='Password of neo4j database',  type=str,   default="toor" ,dest="passw")
+    parser.add_argument('-p',   help='Password of neo4j database',  type=str,   default="neo4j" ,dest="passw")
     parser.add_argument('-f',   help='Name of the pcap file',       type=str,   default="capture.pcap" ,dest="file")
-    parser.add_argument('--url',help='Url of the database',         type=str,   default="bolt://localhost:7687")
+    parser.add_argument('--url',help='Url of the database',         type=str,   default="bolt://127.0.0.1:7687")
 
     args = parser.parse_args()
     #print(args.user)
@@ -302,12 +302,12 @@ def GetArg():
 
 def mgDataBase(userArg):
     try:
-        graph = py2neo.Graph(userArg["url"], username=userArg["username"], password=userArg["password"]) # , secure=True
+        graph = py2neo.Graph(userArg["url"], user=userArg["username"], password=userArg["password"]) # , secure=True
         print("\t[i] Connected to '"+ userArg["url"]+"'")
         print("\t[i] Clear db")
         graph.delete_all()
-    except: #  py2neo.neobolt.exceptions.ServiceUnavailable as connectionError
-        print("\t[X] Fail to connect to the Database") # ,connectionError
+    except connectionError: #  py2neo.neobolt.exceptions.ServiceUnavailable as connectionError
+        print("\t[X] Fail to connect to the Database", connectionError) # ,connectionError
         graph = None
     return graph
 
@@ -337,6 +337,7 @@ def dbRequest(graph):
     #graph.match(nodes=None, r_type=None, limit=None)
 
     # MATCH p=()-[r:SSH]->() RETURN p LIMIT 25
+    # MATCH (n) RETURN n
 
 
 
