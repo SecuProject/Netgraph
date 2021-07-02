@@ -285,29 +285,27 @@ def analysePcap(graph, fileName):
 def GetArg():
     parser = argparse.ArgumentParser(description='Create graph with neo4j from pcap', usage='%(prog)s [options]')
     parser.add_argument('-u',   help='Username of neo4j database',  type=str,   default="neo4j",dest="user")
-    parser.add_argument('-p',   help='Password of neo4j database',  type=str,   default="neo4j" ,dest="passw")
-    parser.add_argument('-f',   help='Name of the pcap file',       type=str,   default="capture.pcap" ,dest="file")
+    parser.add_argument('-p',   help='Password of neo4j database',  type=str,   default="neo4j",dest="passwd")
+    parser.add_argument('-f',   help='Name of the pcap file',       type=str,   required=True  ,dest="file")
     parser.add_argument('--url',help='Url of the database',         type=str,   default="bolt://127.0.0.1:7687")
-
     args = parser.parse_args()
-    #print(args.user)
 
     isExit = False
     if(os.path.isfile(args.file)):
-        print("\t[i] Filename:", args.file)
+        print("\t[+] Filename:", args.file)
     else:
-        print('\t[X] Invalid filename: ', args.file)
+        print('\t[x] Invalid filename: ', args.file)
         isExit = True
-    return  {"username": args.user, "password":args.passw, "filename":args.file ,"url":args.url,"EXIT": isExit}
+    return  {"username": args.user, "password":args.passwd, "filename":args.file ,"url":args.url,"EXIT": isExit}
 
 def mgDataBase(userArg):
     try:
         graph = py2neo.Graph(userArg["url"], user=userArg["username"], password=userArg["password"]) # , secure=True
-        print("\t[i] Connected to '"+ userArg["url"]+"'")
-        print("\t[i] Clear db")
+        print("\t[+] Connected to '"+ userArg["url"]+"'")
+        print("\t[+] Clearing the database !")
         graph.delete_all()
-    except connectionError: #  py2neo.neobolt.exceptions.ServiceUnavailable as connectionError
-        print("\t[X] Fail to connect to the Database", connectionError) # ,connectionError
+    except: #  py2neo.neobolt.exceptions.ServiceUnavailable as connectionError
+        print("\t[x] Fail to connect to the Database") # ,connectionError
         graph = None
     return graph
 
@@ -324,26 +322,13 @@ def dbRequest(graph):
     dataframe = DataFrame(data)
     print(dataframe)
 
-    #data = graph.run("MATCH (n) RETURN n.ipAddress, n.macAddress, n.port").data()
-    #dataframe = DataFrame(data)
-    #print(dataframe)
-
-
-    #graph.exists(subgraph)
-    # e.g.
-    #for rel in graph.match((alice, ), r_type="FRIEND"):
-    #    print(rel.end_node["name"])
-
-    #graph.match(nodes=None, r_type=None, limit=None)
-
-    # MATCH p=()-[r:SSH]->() RETURN p LIMIT 25
-    # MATCH (n) RETURN n
-
+# E.g. query
+# MATCH p=()-[r:SSH]->() RETURN p LIMIT 25
+# MATCH (n) RETURN n
 
 
 def main():
     print("[-] Pcap Analyse Tools")
-
     userArg = GetArg()
     if(userArg["EXIT"]):
         return
